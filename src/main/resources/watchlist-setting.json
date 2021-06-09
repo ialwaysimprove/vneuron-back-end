@@ -1,0 +1,83 @@
+{
+  "index": {
+    "analysis": {
+      "analyzer": {
+        "transliterate_metaphone": {
+          "type": "custom",
+          "char_filter": [
+            "nfc"
+          ],
+          "tokenizer": "nfd_normalized",
+          "filter": [
+            "my_shingle",
+            "icu_transliterate",
+            "lowercase",
+            "phonetic_metaphone"
+          ]
+        },
+        "double_metaphone": {
+          "type": "custom",
+          "char_filter": [
+            "nfc"
+          ],
+          "tokenizer": "nfd_normalized",
+          "filter": [
+            "my_shingle",
+            "lowercase",
+            "phonetic_metaphone"
+          ]
+        },
+        "ngram_truncate": {
+          "type": "custom",
+          "tokenizer": "ngram_tokenizer",
+          "filter": [
+            "lowercase"
+          ]
+
+        }
+      },
+      "char_filter": {
+        "nfc": {
+          "type": "icu_normalizer",
+          "mode": "decompose"
+        }
+      },
+      "tokenizer": {
+        "nfd_normalized": {
+          "type": "icu_tokenizer",
+          "tokenizer": "icu_tokenizer",
+          "char_filter": [
+            "icu_normalizer",
+            "nfd_normalizer"
+          ]
+        },
+        "ngram_tokenizer": {
+          "type": "ngram",
+          "min_gram": 1,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      },
+      "filter": {
+        "icu_transliterate": {
+          "type": "icu_transform",
+          "id": "Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC"
+        },
+        "phonetic_metaphone": {
+          "type": "phonetic",
+          "encoder": "metaphone",
+          "replace": false
+        },
+        "my_shingle": {
+          "type": "shingle",
+          "max_shingle_size": 4,
+          "min_shingle_size": 2,
+          "output_unigrams": "true",
+          "token_separator": ""
+        }
+      }
+    }
+  }
+}

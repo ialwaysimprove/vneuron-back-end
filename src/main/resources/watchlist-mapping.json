@@ -1,0 +1,51 @@
+{
+  "properties": {
+    "entity_id": {
+      "type": "keyword"
+    },
+    "entity_type": {
+      "type": "keyword"
+    },
+    "primary_name": {
+      "type": "keyword",
+      "fields": {
+        "text": {
+          "type": "text"
+        },
+        "cross_lingual": {
+          "type": "text",
+          "analyzer": "transliterate_metaphone"
+        },
+        "phonetic": {
+          "type": "text",
+          "analyzer": "double_metaphone"
+        },
+        "truncated": {
+          "type": "text",
+          "analyzer": "ngram_truncate"
+        }
+
+      }
+    },
+    "whole_names": {
+      "type": "keyword",
+      "fields": {
+        "text": {
+          "type": "text"
+        },
+        "cross_lingual": {
+          "type": "text",
+          "analyzer": "transliterate_metaphone"
+        },
+        "phonetic": {
+          "type": "text",
+          "analyzer": "double_metaphone"
+        },
+        "truncated": {
+          "type": "text",
+          "analyzer": "ngram_truncate"
+        }
+      }
+    }
+  }
+}
