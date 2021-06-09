@@ -1,5 +1,10 @@
 package com.vneuron.sbelasticback.Elasticsearch;
 
+import org.elasticsearch.common.lucene.search.function.CombineFunction;
+import org.elasticsearch.common.lucene.search.function.FunctionScoreQuery;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.GaussDecayFunctionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -47,10 +52,28 @@ public class SearchController {
                 "    }\n" +
                 "}";
 
+//        StringQuery query = new StringQuery(theQueryAsAString);
+//        query.addRescorerQuery(new RescorerQuery(
+//                new StringQuery(rescorerPortion)
+//        ));
+
         StringQuery query = new StringQuery(theQueryAsAString);
-        query.addRescorerQuery(new RescorerQuery(
-                new StringQuery(rescorerPortion)
-        ));
+        query.addRescorerQuery(new RescorerQuery(new NativeSearchQueryBuilder().withQuery(QueryBuilders
+                .functionScoreQuery(new FunctionScoreQueryBuilder.FilterFunctionBuilder[] {
+                        new FunctionScoreQueryBuilder.FilterFunctionBuilder(new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(1f)),
+                        new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+                                new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(100f)) })
+                .scoreMode(FunctionScoreQuery.ScoreMode.SUM).maxBoost(80f).boostMode(CombineFunction.REPLACE)).build())
+                .withScoreMode(RescorerQuery.ScoreMode.Max).withWindowSize(100));
+
+//        .withRescorerQuery(
+//                new RescorerQuery(new NativeSearchQueryBuilder().withQuery(QueryBuilders
+//                        .functionScoreQuery(new FunctionScoreQueryBuilder.FilterFunctionBuilder[] {
+//                                new FilterFunctionBuilder(new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(1f)),
+//                                new FilterFunctionBuilder(
+//                                        new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(100f)) })
+//                        .scoreMode(FunctionScoreQuery.ScoreMode.SUM).maxBoost(80f).boostMode(CombineFunction.REPLACE)).build())
+//                        .withScoreMode(ScoreMode.Max).withWindowSize(100))
 
 
         System.out.println(query.getSource());
@@ -102,9 +125,17 @@ public class SearchController {
                 "}";
 
         StringQuery query = new StringQuery(theQueryAsAString);
-        query.addRescorerQuery(new RescorerQuery(
-                new StringQuery(rescorerPortion)
-        ));
+//        query.addRescorerQuery(new RescorerQuery(
+//                new StringQuery(rescorerPortion)
+//        ));
+
+        query.addRescorerQuery(new RescorerQuery(new NativeSearchQueryBuilder().withQuery(QueryBuilders
+                .functionScoreQuery(new FunctionScoreQueryBuilder.FilterFunctionBuilder[] {
+                        new FunctionScoreQueryBuilder.FilterFunctionBuilder(new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(1f)),
+                        new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+                                new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(100f)) })
+                .scoreMode(FunctionScoreQuery.ScoreMode.SUM).maxBoost(80f).boostMode(CombineFunction.REPLACE)).build())
+                .withScoreMode(RescorerQuery.ScoreMode.Max).withWindowSize(100));
 
         System.out.println(query.getSource());
         SearchHits<Watchlist> person = operations.search(query, Watchlist.class);
