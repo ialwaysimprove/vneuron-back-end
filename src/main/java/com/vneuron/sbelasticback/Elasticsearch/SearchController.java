@@ -6,11 +6,15 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.GaussDecayFunctionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.*;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.RescorerQuery;
+import org.springframework.data.elasticsearch.core.query.StringQuery;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,19 +56,19 @@ public class SearchController {
                 "    }\n" +
                 "}";
 
-//        StringQuery query = new StringQuery(theQueryAsAString);
-//        query.addRescorerQuery(new RescorerQuery(
-//                new StringQuery(rescorerPortion)
-//        ));
-
         StringQuery query = new StringQuery(theQueryAsAString);
-        query.addRescorerQuery(new RescorerQuery(new NativeSearchQueryBuilder().withQuery(QueryBuilders
-                .functionScoreQuery(new FunctionScoreQueryBuilder.FilterFunctionBuilder[] {
-                        new FunctionScoreQueryBuilder.FilterFunctionBuilder(new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(1f)),
-                        new FunctionScoreQueryBuilder.FilterFunctionBuilder(
-                                new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(100f)) })
-                .scoreMode(FunctionScoreQuery.ScoreMode.SUM).maxBoost(80f).boostMode(CombineFunction.REPLACE)).build())
-                .withScoreMode(RescorerQuery.ScoreMode.Max).withWindowSize(100));
+        query.addRescorerQuery(new RescorerQuery(
+                new StringQuery(rescorerPortion)
+        ));
+
+//        StringQuery query = new StringQuery(theQueryAsAString);
+//        query.addRescorerQuery(new RescorerQuery(new NativeSearchQueryBuilder().withQuery(QueryBuilders
+//                .functionScoreQuery(new FunctionScoreQueryBuilder.FilterFunctionBuilder[] {
+//                        new FunctionScoreQueryBuilder.FilterFunctionBuilder(new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(1f)),
+//                        new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+//                                new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(100f)) })
+//                .scoreMode(FunctionScoreQuery.ScoreMode.SUM).maxBoost(80f).boostMode(CombineFunction.REPLACE)).build())
+//                .withScoreMode(RescorerQuery.ScoreMode.Max).withWindowSize(10));
 
 //        .withRescorerQuery(
 //                new RescorerQuery(new NativeSearchQueryBuilder().withQuery(QueryBuilders
@@ -125,17 +129,17 @@ public class SearchController {
                 "}";
 
         StringQuery query = new StringQuery(theQueryAsAString);
-//        query.addRescorerQuery(new RescorerQuery(
-//                new StringQuery(rescorerPortion)
-//        ));
+        query.addRescorerQuery(new RescorerQuery(
+                new StringQuery(rescorerPortion)
+        ));
 
-        query.addRescorerQuery(new RescorerQuery(new NativeSearchQueryBuilder().withQuery(QueryBuilders
-                .functionScoreQuery(new FunctionScoreQueryBuilder.FilterFunctionBuilder[] {
-                        new FunctionScoreQueryBuilder.FilterFunctionBuilder(new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(1f)),
-                        new FunctionScoreQueryBuilder.FilterFunctionBuilder(
-                                new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(100f)) })
-                .scoreMode(FunctionScoreQuery.ScoreMode.SUM).maxBoost(80f).boostMode(CombineFunction.REPLACE)).build())
-                .withScoreMode(RescorerQuery.ScoreMode.Max).withWindowSize(100));
+//        query.addRescorerQuery(new RescorerQuery(new NativeSearchQueryBuilder().withQuery(QueryBuilders
+//                .functionScoreQuery(new FunctionScoreQueryBuilder.FilterFunctionBuilder[] {
+//                        new FunctionScoreQueryBuilder.FilterFunctionBuilder(new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(1f)),
+//                        new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+//                                new GaussDecayFunctionBuilder("rate", 0, 10, null, 0.5).setWeight(100f)) })
+//                .scoreMode(FunctionScoreQuery.ScoreMode.SUM).maxBoost(80f).boostMode(CombineFunction.REPLACE)).build())
+//                .withScoreMode(RescorerQuery.ScoreMode.Max).withWindowSize(10));
 
         System.out.println(query.getSource());
         SearchHits<Watchlist> person = operations.search(query, Watchlist.class);
