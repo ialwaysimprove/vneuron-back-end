@@ -3,43 +3,106 @@
     "entity_id": {
       "type": "keyword"
     },
+    "source_document": {
+      "type": "keyword"
+    },
+    "id_in_document": {
+      "type": "keyword"
+    },
     "entity_type": {
       "type": "keyword"
     },
     "primary_name": {
       "type": "keyword",
       "fields": {
-        "text": {
-          "type": "text"
+        "clean": {
+          "type": "text",
+          "analyzer": "fuzzy_matching"
         },
-        "cross_lingual": {
+        "clean_with_shingles": {
+          "type": "text",
+          "analyzer": "fuzzy_matching_with_shingles"
+        },
+        "cross_lingual_double_metaphone": {
           "type": "text",
           "analyzer": "transliterate_metaphone"
         },
-        "phonetic": {
+        "cross_lingual_double_metaphone_shingles": {
+          "type": "text",
+          "analyzer": "transliterate_metaphone_with_shingles"
+        },
+        "cross_lingual_beier_morse": {
+          "type": "text",
+          "analyzer": "transliterate_bider_morse"
+        },
+        "cross_lingual_beier_morse_with_shingles": {
+          "type": "text",
+          "analyzer": "transliterate_bider_morse"
+        },
+        "phonetic_dm": {
           "type": "text",
           "analyzer": "double_metaphone"
+        },
+        "phonetic_dm_with_shingles": {
+          "type": "text",
+          "analyzer": "double_metaphone"
+        },
+        "phonetic_bm": {
+          "type": "text",
+          "analyzer": "bider_morse"
+        },
+        "phonetic_bm_with_shingles": {
+          "type": "text",
+          "analyzer": "bider_morse"
         },
         "truncated": {
           "type": "text",
           "analyzer": "ngram_truncate"
         }
-
       }
     },
     "whole_names": {
       "type": "keyword",
       "fields": {
-        "text": {
-          "type": "text"
+        "clean": {
+          "type": "text",
+          "analyzer": "fuzzy_matching"
         },
-        "cross_lingual": {
+        "clean_with_shingles": {
+          "type": "text",
+          "analyzer": "fuzzy_matching_with_shingles"
+        },
+        "cross_lingual_double_metaphone": {
           "type": "text",
           "analyzer": "transliterate_metaphone"
         },
-        "phonetic": {
+        "cross_lingual_double_metaphone_shingles": {
+          "type": "text",
+          "analyzer": "transliterate_metaphone_with_shingles"
+        },
+        "cross_lingual_beier_morse": {
+          "type": "text",
+          "analyzer": "transliterate_bider_morse"
+        },
+        "cross_lingual_beier_morse_with_shingles": {
+          "type": "text",
+          "analyzer": "transliterate_bider_morse"
+        },
+        "phonetic_dm": {
           "type": "text",
           "analyzer": "double_metaphone"
+        },
+        "phonetic_dm_with_shingles": {
+          "type": "text",
+          "analyzer": "double_metaphone"
+        },
+        "phonetic_bm": {
+          "type": "text",
+          "analyzer": "bider_morse"
+        },
+        "phonetic_bm_with_shingles": {
+          "type": "text",
+          "analyzer": "bider_morse"
         },
         "truncated": {
           "type": "text",

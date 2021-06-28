@@ -41,13 +41,32 @@ public class SearchController {
     @GetMapping("/person-search/")
     public SearchHits<Watchlist> findByName(@RequestParam String wholename) {
         List<String> shouldQueryList = new ArrayList<>();
-        shouldQueryList.add("        { \"match\": { \"whole_names.cross_lingual\": \"" + wholename + "\" }}\n");
-        shouldQueryList.add("        { \"match\": { \"whole_names.truncated\": \""+ wholename+"\" }}\n");
-        shouldQueryList.add("        { \"match\": { \"whole_names.phonetic\": \""+ wholename+"\" }}\n");
-        shouldQueryList.add("        { \"match\": {\"whole_names.text\": {\"query\": \"" + wholename + "\", \"fuzziness\": \"AUTO\"}} }\n");
+        // We can also run language detection here, and depending on the name change the query!
+
+        // I guess the exact value of the boost can be chosen depending on either statistics on the most common types
+        // of errors, or on tests...
+        // I have used unique tokens, so that only variations due to spelling differences in input data will make a
+        // difference (and not the same name repeated)
+        shouldQueryList.add("        { \"match\": {\"whole_names.clean\": {\"query\": \"" + wholename + "\", " +
+                "\"fuzziness\": \"AUTO\""
+                + ", \"boost\": 7"  // Boost the match if it is written almost the  same as in the documents,
+//                    now, how to mput this in other queries?
+                +"}} }");
+        shouldQueryList.add("\n        { \"match\": {\"whole_names.clean_with_shingles\": {\"query\": \"" + wholename +
+                "\", " +
+                "\"fuzziness\": \"AUTO\""
+                + ", \"boost\": 4"  // Boost the match if it is written almost the  same as in the documents,
+//                    now, how to input this in other queries?
+                +"}} }");
+        shouldQueryList.add("\n        { \"multi_match\": {\n" +
+                "      \"query\": \"" + wholename + "\",\n" +
+                "      \"fields\": [\"whole_names.cross_lingual_double_metaphone^17\", \"whole_names.cross_lingual_double_metaphone_with_shingles^7\", \"whole_names.cross_lingual_beier_morse^7\", \"whole_names.cross_lingual_beier_morse_with_shingles^3\", \"whole_names.phonetic_dm^7\", \"whole_names.phonetic_dm_with_shingles^4\", \"whole_names.phonetic_bm^4\", \"whole_names.phonetic_bm_with_shingles^2\"]\n" +
+                "        } } ");
+
+        shouldQueryList.add("\n        { \"match\": { \"whole_names.truncated\": \""+ wholename +"\" }}");
 
         String rescorerPortion =
-                "        { \"match\": {\"whole_names.text\": {\"query\": \"" + wholename + "\", \"fuzziness\": \"AUTO\"}} }\n";
+                "        { \"match\": {\"whole_names.clean\": {\"query\": \"" + wholename + "\", \"fuzziness\": \"AUTO\"}} }\n";
         String shouldQuery = shouldQueryList.stream().collect(Collectors.joining(","));
 
         String theQueryAsAString = "{\"bool\" : {\"should\" : [\n" +
@@ -56,6 +75,7 @@ public class SearchController {
                 "    }\n" +
                 "}";
 
+        System.out.println(theQueryAsAString);
         StringQuery query = new StringQuery(theQueryAsAString);
         query.addRescorerQuery(new RescorerQuery(
                 new StringQuery(rescorerPortion)
@@ -110,13 +130,28 @@ public class SearchController {
     public SearchHits<Watchlist> checkName(List<String> namesList) {
         List<String> shouldQueryList = new ArrayList<>();
         String rescorerPortion = "";
-        for (String name : namesList) {
-            shouldQueryList.add("        { \"match\": { \"whole_names.cross_lingual\": \"" + name + "\" }}\n");
-            shouldQueryList.add("        { \"match\": { \"whole_names.truncated\": \""+ name+"\" }}\n");
-            shouldQueryList.add("        { \"match\": { \"whole_names.phonetic\": \""+ name+"\" }}\n");
-            shouldQueryList.add("        { \"match\": {\"whole_names.text\": {\"query\": \"" + name + "\", \"fuzziness\": \"AUTO\"}} }\n");
+        // Could've also used a multimatch, but I don't know how to deal with the fuzziness and boost...
+        for (String wholename : namesList) {
+            // I can put all of this within a function right?
+            if (!(wholename.isEmpty())) {
+                shouldQueryList.add("        { \"match\": {\"whole_names.clean\": {\"query\": \"" + wholename + "\", " +
+                        "\"fuzziness\": \"AUTO\""
+                        + ", \"boost\": 7"  // Boost the match if it is written almost the  same as in the documents,
+//                    now, how to mput this in other queries?
+                        + "}} }");
+                shouldQueryList.add("\n        { \"match\": {\"whole_names.clean_with_shingles\": {\"query\": \"" + wholename +
+                        "\", " +
+                        "\"fuzziness\": \"AUTO\""
+                        + ", \"boost\": 4"  // Boost the match if it is written almost the  same as in the documents,
+//                    now, how to input this in other queries?
+                        + "}} }");
+                shouldQueryList.add("\n        { \"multi_match\": {\n" +
+                        "      \"query\": \"" + wholename + "\",\n" +
+                        "      \"fields\": [\"whole_names.cross_lingual_double_metaphone^17\", \"whole_names.cross_lingual_double_metaphone_with_shingles^7\", \"whole_names.cross_lingual_beier_morse^7\", \"whole_names.cross_lingual_beier_morse_with_shingles^3\", \"whole_names.phonetic_dm^7\", \"whole_names.phonetic_dm_with_shingles^4\", \"whole_names.phonetic_bm^4\", \"whole_names.phonetic_bm_with_shingles^2\"]\n" +
+                        "        } } ");
 
-            rescorerPortion = "        { \"match\": {\"whole_names.text\": {\"query\": \"" + name + "\", \"fuzziness\": \"AUTO\"}} }\n";
+                shouldQueryList.add("\n        { \"match\": { \"whole_names.truncated\": \"" + wholename + "\" }}");
+            }
         }
         String shouldQuery = shouldQueryList.stream().collect(Collectors.joining(","));
 
@@ -127,11 +162,12 @@ public class SearchController {
                 "      ]\n" +
                 "    }\n" +
                 "}";
+        System.out.println(theQueryAsAString);
 
         StringQuery query = new StringQuery(theQueryAsAString);
-        query.addRescorerQuery(new RescorerQuery(
-                new StringQuery(rescorerPortion)
-        ));
+//        query.addRescorerQuery(new RescorerQuery(
+//                new StringQuery(rescorerPortion)
+//        ));
 
 //        query.addRescorerQuery(new RescorerQuery(new NativeSearchQueryBuilder().withQuery(QueryBuilders
 //                .functionScoreQuery(new FunctionScoreQueryBuilder.FilterFunctionBuilder[] {

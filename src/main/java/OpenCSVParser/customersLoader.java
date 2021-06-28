@@ -24,12 +24,12 @@ public class customersLoader {
                 // System.out.println("Exception After Here 1 "); // The error was because the first line holds the field name
                 individual.setId(Long.parseLong(record[0]));
                 // System.out.println("Exception After Here 2 ");
-                individual.setBusiness_name(record[9]);
-                individual.setFirst_name(record[37]);
-                individual.setLast_name(record[43]);
-                individual.setMaiden_name(record[45]);
-                individual.setManager_name(record[46]);
-                individual.setWhole_name(record[69]);
+                individual.setBusiness_name(record[9].trim().isEmpty() || record[9].trim().equals("null")? "": record[9].trim());
+                individual.setFirst_name(record[37].trim().isEmpty() || record[37].trim().equals("null")? "": record[37].trim());
+                individual.setLast_name(record[43].trim().isEmpty() || record[43].trim().equals("null")? "": record[43].trim());
+                individual.setMaiden_name(record[45].trim().isEmpty() || record[45].trim().equals("null")? "": record[45].trim());
+                individual.setManager_name(record[46].trim().isEmpty() || record[46].trim().equals("null")? "": record[46].trim());
+                individual.setWhole_name(record[69].trim().isEmpty() || record[69].trim().equals("null")? "": record[69].trim());
                 // individual.setGazette_ref(record[40]);
                 customerList.add(individual);
 

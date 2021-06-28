@@ -35,6 +35,7 @@ public class SbElasticBackApplication {
         this.postgresRepository = postgresRepository;
         this.customerSearch = customerSearch;
         this.CWJTableRepository = CWJTableRepository;
+
     }
 
     public static void main(String[] args) {
@@ -84,6 +85,11 @@ public class SbElasticBackApplication {
         postgresRepository.saveAll(vncustomers);
 
         List<Customer> pgsavedcustomers = postgresRepository.findAll();
+
+        List<CWJTable> searchHits = customerSearch.checkCustomers(pgsavedcustomers);
+
+        CWJTableRepository.saveAll(searchHits);
+
         // System.out.println(pgsavedcustomers); // I'll leave it just in case, because this is the things that we stored into postgresql!
 
 
